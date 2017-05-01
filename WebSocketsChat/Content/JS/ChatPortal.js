@@ -162,7 +162,11 @@ function ProcessNewUser(returnObject) {
     var requestName = returnObject.RequestName;
     var name = returnObject.Name;
     var chatRoomId = returnObject.ChatRoomId;
-    chatRoomIds.push(chatRoomId);
+
+    if (chatRoomIds.indexOf(chatRoomId) != 0) {
+        chatRoomIds.push(chatRoomId);
+    }
+
     UpdateChatRooms();
 
     $("#btn-chat").attr("data-chatroomid", chatRoomId);
@@ -286,7 +290,7 @@ function Disconnect() {
     try {
         connection.send(JSON.stringify(sendValue));
         $("#chatRoomsList").html("");
-        $("#chatPanelBody").html("");
+        $("#chatBody").html("");
     } catch (ex) {
         WriteString(GenerateAdminHtmlOutput("Sending connection kill command failed."));
         return;
@@ -320,8 +324,19 @@ function ToggleBlur(value, elementId) {
 }
 
 function SetCurrentChatRoom(newChatRoomId) {
-    $("#btn-chat").attr("data-chatroomid", newChatRoomId);
-    $("#chatGroupId").val(newChatRoomId);
+    var sendValue = new Object();
+    sendValue.ResponseType = "JoinChatRoomRequest";
+    sendValue.ChatRoomToJoinId = newChatRoomId;
+
+    try {
+        connection.send(JSON.stringify(sendValue));
+        $("#chatBody").html("");
+        $("#btn-chat").attr("data-chatroomid", newChatRoomId);
+        $("#chatGroupId").val(newChatRoomId);
+    } catch (ex) {
+        WriteString(GenerateAdminHtmlOutput("Joining selected chatroom failed."));
+        return;
+    }
 }
 
 function UpdateChatRooms() {
