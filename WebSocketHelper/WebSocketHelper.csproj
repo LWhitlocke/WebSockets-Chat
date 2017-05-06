@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransferProtocols\ChatRoomListResponse.cs" />
     <Compile Include="TransferProtocols\JoinChatRoomRequest.cs" />
     <Compile Include="TransferProtocols\MessageResponse.cs" />
     <Compile Include="TransferProtocols\NewChatRoomRequest.cs" />

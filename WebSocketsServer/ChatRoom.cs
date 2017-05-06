@@ -11,7 +11,7 @@ namespace WebSocketsServer
     {
         public List<User> Users { get; set; }
         public int ChatRoomId { get; set; }
-        private Server _server { get; set; }
+        private Server Server { get; set; }
 
         private readonly MessageHandler _messageHandler;
         
@@ -19,7 +19,7 @@ namespace WebSocketsServer
         {
             Users = new List<User>();
             _messageHandler = new MessageHandler();
-            _server = server;
+            Server = server;
             var rnd = new Random();
             ChatRoomId = rnd.Next(1000000000, 2147483647);
         }
@@ -28,37 +28,20 @@ namespace WebSocketsServer
         {
             foreach (var user in Users)
             {
-                SendToSpecificUser(decodedMessageBytesArray, user);
+                Server.SendToSpecificUser(decodedMessageBytesArray, user);
             }
 
-            RemoveInvalidUsers();
+            Server.RemoveInvalidUsers(Users, ChatRoomId);
         }
 
         public void SendToAllExceptSpecificUser(byte[] decodedMessageBytesArray, User exceptionUser)
         {
             foreach (var user in Users.Where(user => user.UserName != exceptionUser.UserName))
             {
-                SendToSpecificUser(decodedMessageBytesArray, user);
+                Server.SendToSpecificUser(decodedMessageBytesArray, user);
             }
 
-            RemoveInvalidUsers();
-        }
-
-        private void RemoveInvalidUsers()
-        {
-            while (Users.Any(u => u.IsUserValid == false))
-            {
-                var invalidUser = Users.First(u => u.IsUserValid == false);
-                Users.Remove(invalidUser);
-
-                var sr = new SystemResponse
-                {
-                    Message = invalidUser.UserName + " has left the chat."
-                };
-                var encodedResponse = _messageHandler.ObjectToByteArray(sr);
-                _server.ChatRooms[Server.BaseChatRoomId].SendToAllUsers(encodedResponse);
-            }
-
+            Server.RemoveInvalidUsers(Users, ChatRoomId);
         }
 
         public void SendToSpecificUser(byte[] decodedMessageBytesArray, User user)

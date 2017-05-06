@@ -84,6 +84,18 @@ function PrepareSocket() {
                     $("#chatInput").attr("placeholder", "Type your message here...");
                     break;
                 }
+            case ("ChatRoomListResponse"):
+                {
+                    for (var chatRoomItteration = 0; chatRoomItteration < returnObject.ChatRoomIds.length; chatRoomItteration++) {
+                        var chatRoomId = returnObject.ChatRoomIds[chatRoomItteration];
+                        var chatRoomIdIndexInArray = chatRoomIds.indexOf(chatRoomId);
+                        if (chatRoomIdIndexInArray === -1) {
+                            chatRoomIds.push(chatRoomId);
+                        }
+                    }
+                    UpdateChatRooms();
+                    break;
+                }
             case ("NewChatRoomResponse"):
             {
                 chatRoomIds.push(returnObject.ChatRoomId);
