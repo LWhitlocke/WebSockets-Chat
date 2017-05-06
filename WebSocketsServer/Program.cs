@@ -35,7 +35,7 @@ namespace WebSocketsServer
 
             Console.WriteLine("Server has started on {0}:{1}.{2}Waiting for a connection...", _server.ServerLocation, _server.Port, Environment.NewLine);
 
-            _server.StartListeningForNewUsersThread();
+            _server.StartListeningProcesses();
 
             Console.WriteLine("Client list updater thread started.");
 

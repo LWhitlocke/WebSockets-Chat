@@ -115,7 +115,7 @@
             <div class="col-md-4 pull-right">
                 <div id="ChatRooms" class="panel panel-primary">
                     <div class="panel-heading">
-                        Your Chat Rooms
+                        Available Chat Rooms
                     </div>
                     <div class="panel-body">
                         <div class="list-group"id="chatRoomsList">

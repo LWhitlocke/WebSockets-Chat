@@ -81,8 +81,9 @@ namespace WebSocketsServer
                         case ("NewChatRoomRequest"):
                             {
                                 var newChatRoomResponse = serializer.Deserialize<NewChatRoomRequest>(convertedByteStream);
-                                
+
                                 var chatRoom = _server.SetupNewChatRoom();
+                                chatRoom.Users.Add(_user);
 
                                 var returnResponse = new NewChatRoomResponse()
                                 {
@@ -91,6 +92,35 @@ namespace WebSocketsServer
 
                                 var encodedResponse = _messageHandler.ObjectToByteArray(returnResponse);
                                 _server.ChatRooms[Server.BaseChatRoomId].SendToSpecificUser(encodedResponse, _user);
+
+                                break;
+                            }
+                        case ("JoinChatRoomRequest"):
+                            {
+                                var joinChatRoomRequest = serializer.Deserialize<JoinChatRoomRequest>(convertedByteStream);
+
+                                if (!_server.ChatRooms[joinChatRoomRequest.ChatRoomToJoinId].Users.Contains(_user))
+                                {
+                                    _server.ChatRooms[joinChatRoomRequest.ChatRoomToJoinId].Users.Add(_user);
+
+                                    var sr = new SystemResponse
+                                    {
+                                        Message = _user.UserName + " has joined the chat."
+                                    };
+
+                                    var encodedResponse = _messageHandler.ObjectToByteArray(sr);
+                                    _server.ChatRooms[joinChatRoomRequest.ChatRoomToJoinId].SendToAllUsers(encodedResponse);
+                                }
+                                else
+                                {
+                                    var sr = new SystemResponse
+                                    {
+                                        Message = _user.UserName + " is already a member of this room."
+                                    };
+
+                                    var encodedResponse = _messageHandler.ObjectToByteArray(sr);
+                                    _server.ChatRooms[joinChatRoomRequest.ChatRoomToJoinId].SendToSpecificUser(encodedResponse, _user);
+                                }
 
                                 break;
                             }
@@ -247,7 +277,7 @@ namespace WebSocketsServer
             if (!request.RequestName) return;
 
             //This method doesn't account for the eventuality of duplicate usernames being assigned.
-            var rnd = new Random((int) DateTime.Now.Ticks);
+            var rnd = new Random((int)DateTime.Now.Ticks);
             var username = "User" + rnd.Next(0, 999999);
             _user.UserName = username;
 
@@ -294,7 +324,7 @@ namespace WebSocketsServer
             switch (request.RequestType)
             {
                 case "Ping":
-                    var ping = new Ping {RequestType = "Ping"};
+                    var ping = new Ping { RequestType = "Ping" };
                     encodedResponse = _messageHandler.ObjectToByteArray(ping);
                     _server.ChatRooms[Server.BaseChatRoomId].SendToSpecificUser(encodedResponse, _user);
                     break;
